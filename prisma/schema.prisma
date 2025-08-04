@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  name      String?
+  password  String
+  projects  Project[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Project {
+  id              String      @id @default(cuid())
+  name            String
+  description     String?
+  baseUrl         String
+  sourcePath      String?     // Local directory path for source code analysis
+  requiresAuth    Boolean     @default(false)
+  authEmail       String?
+  authPassword    String?
+  loginUrl        String?
+  screenshotSize  String      @default("desktop-1920") // Default screenshot size for tests
+  userId          String
+  user            User        @relation(fields: [userId], references: [id])
+  testSuites      TestSuite[]
+  testRuns        TestRun[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model TestSuite {
+  id          String     @id @default(cuid())
+  name        String
+  description String?
+  projectId   String
+  project     Project    @relation(fields: [projectId], references: [id])
+  testCases   TestCase[]
+  testRuns    TestRun[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model TestCase {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  suiteId     String
+  suite       TestSuite @relation(fields: [suiteId], references: [id])
+  steps       String    // SQLiteではJsonではなくString
+  config      String    // SQLiteではJsonではなくString
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model TestRun {
+  id          String       @id @default(cuid())
+  projectId   String
+  project     Project      @relation(fields: [projectId], references: [id])
+  suiteId     String?
+  suite       TestSuite?   @relation(fields: [suiteId], references: [id])
+  status      String
+  startedAt   DateTime?
+  completedAt DateTime?
+  results     String       // SQLiteではJsonではなくString
+  screenshots Screenshot[]
+  createdAt   DateTime     @default(now())
+}
+
+model Screenshot {
+  id        String   @id @default(cuid())
+  testRunId String
+  testRun   TestRun  @relation(fields: [testRunId], references: [id])
+  browser   String
+  pageName  String
+  url       String
+  filePath  String
+  createdAt DateTime @default(now())
+}

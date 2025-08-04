@@ -1,0 +1,87 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# database
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+prisma/dev.db
+prisma/dev.db-journal
+prisma/prod.db
+prisma/prod.db-journal
+prisma/test.db
+prisma/test.db-journal
+.env.sqlite
+*.db.backup.*
+
+# uploaded files
+public/screenshots/*
+public/reports/*
+!public/screenshots/.gitkeep
+!public/reports/.gitkeep
+
+# Redis
+dump.rdb
+
+# Logs
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# MCP server build
+mcp-server/dist/
+mcp-server/node_modules/
+
+# Test files
+test-*.js
+TEST_*.md
+DEBUG_*.md
+BROWSER_SETUP.md
+
+# Sample and generated files
+generated-tests/
+test-cases/
+sample-specs/
