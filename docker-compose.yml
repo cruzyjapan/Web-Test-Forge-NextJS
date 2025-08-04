@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  # Development environment with SQLite
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    container_name: web-test-forge-dev
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=file:/app/data/dev.db
+      - AUTH_SECRET=${AUTH_SECRET:-dev-secret-key-for-development-min-32-chars}
+      - NEXT_PUBLIC_APP_URL=http://localhost:3000
+      - PLAYWRIGHT_BROWSERS_PATH=0
+      - PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1
+    volumes:
+      - ./data:/app/data
+      - ./public/screenshots:/app/public/screenshots
+      - ./public/reports:/app/public/reports
+    profiles:
+      - development
+
+  # Production environment with SQLite
+  app-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    container_name: web-test-forge-prod
+    ports:
+      - "80:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=file:/app/data/prod.db
+      - AUTH_SECRET=${AUTH_SECRET}
+      - NEXT_PUBLIC_APP_URL=${APP_URL:-https://your-domain.com}
+      - SECURE_COOKIES=true
+      - FORCE_HTTPS=true
+      - PLAYWRIGHT_BROWSERS_PATH=0
+      - PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1
+    volumes:
+      - ./data:/app/data
+      - ./public/screenshots:/app/public/screenshots
+      - ./public/reports:/app/public/reports
+    restart: unless-stopped
+    profiles:
+      - production
+
+  # Test environment with SQLite
+  app-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    container_name: web-test-forge-test
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=test
+      - DATABASE_URL=file:/app/data/test.db
+      - AUTH_SECRET=test-secret-key-for-testing-min-32-chars
+      - NEXT_PUBLIC_APP_URL=http://localhost:3001
+      - HEADLESS_BROWSER=true
+      - PLAYWRIGHT_BROWSERS_PATH=0
+      - PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1
+    volumes:
+      - ./data:/app/data
+    profiles:
+      - test
+
+  # Optional: Redis for job queue (all environments)
+  redis:
+    image: redis:7-alpine
+    container_name: web-test-forge-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    profiles:
+      - redis
+      - development
+      - production
+
+volumes:
+  redis_data:
